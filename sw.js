@@ -1,4 +1,4 @@
-const CACHE_NAME = 'scientific-calculator-v1';
+const CACHE_NAME = 'scientific-calculator-v20250919-2316';
 const urlsToCache = [
   '/',
   '/index.html',
