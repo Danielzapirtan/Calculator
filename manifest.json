@@ -2,7 +2,7 @@
   "name": "Scientific Calculator PWA",
   "short_name": "SciCalc",
   "description": "A scientific calculator progressive web application",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#6a11cb",
   "theme_color": "#333333",
