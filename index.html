@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientific Calculator PWA</title>
+    <meta name="theme-color" content="#333333">
+    <meta name="description" content="A scientific calculator progressive web application">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .calculator {
+            width: 100%;
+            max-width: 400px;
+            background-color: #222;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+        
+        .display {
+            background-color: #000;
+            color: #fff;
+            padding: 20px;
+            text-align: right;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        
+        .calculation {
+            color: #aaa;
+            font-size: 1.2rem;
+            min-height: 28px;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 10px;
+            text-align: right;
+        }
+        
+        .result {
+            font-size: 2.2rem;
+            font-weight: 300;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1px;
+            background-color: #333;
+        }
+        
+        button {
+            border: none;
+            padding: 15px 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background-color: #444;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #555;
+        }
+        
+        button:active {
+            background-color: #666;
+        }
+        
+        .number {
+            background-color: #333;
+        }
+        
+        .operator {
+            background-color: #505050;
+        }
+        
+        .function {
+            background-color: #2c2c2c;
+        }
+        
+        .equals {
+            background-color: #1976d2;
+        }
+        
+        .clear {
+            background-color: #d32f2f;
+        }
+        
+        .title {
+            color: white;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .instructions {
+            color: white;
+            margin-top: 20px;
+            text-align: center;
+            max-width: 400px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        @media (max-width: 480px) {
+            button {
+                padding: 12px 5px;
+                font-size: 1rem;
+            }
+            
+            .result {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">Scientific Calculator PWA</h1>
+    
+    <div class="calculator">
+        <div class="display">
+            <div class="calculation" id="calculation"></div>
+            <div class="result" id="result">0</div>
+        </div>
+        
+        <div class="keypad">
+            <!-- Row 1 -->
+            <button class="function" onclick="handleFunction('(')">(</button>
+            <button class="function" onclick="handleFunction(')')">)</button>
+            <button class="function" onclick="handleFunction('exp')">EXP</button>
+            <button class="clear" onclick="clearAll()">AC</button>
+            <button class="clear" onclick="clearEntry()">C</button>
+            
+            <!-- Row 2 -->
+            <button class="function" onclick="handleFunction('10^x')">10^x</button>
+            <button class="function" onclick="handleFunction('e^x')">e^x</button>
+            <button class="function" onclick="handleFunction('x^y')">x^y</button>
+            <button class="operator" onclick="handleOperator('/')">/</button>
+            <button class="operator" onclick="handleOperator('*')">*</button>
+            
+            <!-- Row 3 -->
+            <button class="function" onclick="handleFunction('log10')">log10</button>
+            <button class="function" onclick="handleFunction('ln')">ln</button>
+            <button class="operator" onclick="handlePercentage()">%</button>
+            <button class="number" onclick="appendNumber(7)">7</button>
+            <button class="number" onclick="appendNumber(8)">8</button>
+            
+            <!-- Row 4 -->
+            <button class="number" onclick="appendNumber(9)">9</button>
+            <button class="operator" onclick="handleOperator('-')">-</button>
+            <button class="number" onclick="appendNumber(4)">4</button>
+            <button class="number" onclick="appendNumber(5)">5</button>
+            <button class="number" onclick="appendNumber(6)">6</button>
+            
+            <!-- Row 5 -->
+            <button class="operator" onclick="handleOperator('+')">+</button>
+            <button class="number" onclick="appendNumber(1)">1</button>
+            <button class="number" onclick="appendNumber(2)">2</button>
+            <button class="number" onclick="appendNumber(3)">3</button>
+            <button class="equals" onclick="calculate()" rowspan="2">=</button>
+            
+            <!-- Row 6 -->
+            <button class="number" onclick="appendNumber(0)">0</button>
+            <button class="number" onclick="appendDecimal()">.</button>
+        </div>
+    </div>
+    
+    <div class="instructions">
+        <p>This is a scientific calculator PWA. You can install it on your device for offline use.</p>
+    </div>
+
+    <script>
+        // State management
+        let currentInput = '0';
+        let calculation = '';
+        let previousInput = '';
+        let operation = null;
+        let resetInput = false;
+        
+        // DOM elements
+        const resultElement = document.getElementById('result');
+        const calculationElement = document.getElementById('calculation');
+        
+        // Format number to scientific notation with 4 significant digits
+        function formatToScientific(num) {
+            if (num === 0) return '0';
+            if (!isFinite(num)) return num.toString();
+            
+            // Convert to scientific notation
+            const exp = Math.floor(Math.log10(Math.abs(num)));
+            const mantissa = num / Math.pow(10, exp);
+            
+            // Format mantissa to 4 significant digits
+            let formattedMantissa = mantissa.toFixed(3);
+            
+            // Adjust for rounding
+            if (formattedMantissa >= 10) {
+                formattedMantissa = (formattedMantissa / 10).toFixed(3);
+                exp++;
+            }
+            
+            // Format exponent to 2 digits
+            const formattedExp = exp >= 0 ? 
+                `+${exp.toString().padStart(2, '0')}` : 
+                `-${Math.abs(exp).toString().padStart(2, '0')}`;
+            
+            return `${formattedMantissa}e${formattedExp}`;
+        }
+        
+        // Update display
+        function updateDisplay() {
+            resultElement.textContent = currentInput;
+            calculationElement.textContent = calculation;
+        }
+        
+        // Append number
+        function appendNumber(number) {
+            if (resetInput) {
+                currentInput = '';
+                resetInput = false;
+            }
+            
+            if (currentInput === '0') {
+                currentInput = number.toString();
+            } else {
+                currentInput += number.toString();
+            }
+            
+            updateDisplay();
+        }
+        
+        // Append decimal point
+        function appendDecimal() {
+            if (resetInput) {
+                currentInput = '0';
+                resetInput = false;
+            }
+            
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+            
+            updateDisplay();
+        }
+        
+        // Handle operators
+        function handleOperator(op) {
+            if (operation !== null) {
+                calculate();
+            }
+            
+            previousInput = currentInput;
+            operation = op;
+            calculation = `${previousInput} ${op} `;
+            resetInput = true;
+            updateDisplay();
+        }
+        
+        // Handle functions
+        function handleFunction(func) {
+            let result;
+            const inputValue = parseFloat(currentInput);
+            
+            switch (func) {
+                case 'e^x':
+                    result = Math.exp(inputValue);
+                    calculation = `e^(${currentInput})`;
+                    break;
+                case '10^x':
+                    result = Math.pow(10, inputValue);
+                    calculation = `10^(${currentInput})`;
+                    break;
+                case 'x^y':
+                    if (operation !== null) {
+                        calculate();
+                    }
+                    previousInput = currentInput;
+                    operation = '^';
+                    calculation = `${previousInput} ^ `;
+                    resetInput = true;
+                    updateDisplay();
+                    return;
+                case 'log10':
+                    if (inputValue <= 0) {
+                        currentInput = 'Error';
+                        calculation = 'log10(x), x>0';
+                        updateDisplay();
+                        return;
+                    }
+                    result = Math.log10(inputValue);
+                    calculation = `log10(${currentInput})`;
+                    break;
+                case 'ln':
+                    if (inputValue <= 0) {
+                        currentInput = 'Error';
+                        calculation = 'ln(x), x>0';
+                        updateDisplay();
+                        return;
+                    }
+                    result = Math.log(inputValue);
+                    calculation = `ln(${currentInput})`;
+                    break;
+                case 'exp':
+                    calculation += 'e';
+                    if (currentInput === '0') {
+                        currentInput = 'e';
+                    } else {
+                        currentInput += 'e';
+                    }
+                    updateDisplay();
+                    return;
+                case '(':
+                case ')':
+                    calculation += func;
+                    if (currentInput === '0') {
+                        currentInput = func;
+                    } else {
+                        currentInput += func;
+                    }
+                    updateDisplay();
+                    return;
+                default:
+                    return;
+            }
+            
+            currentInput = formatToScientific(result);
+            updateDisplay();
+            resetInput = true;
+        }
+        
+        // Handle percentage
+        function handlePercentage() {
+            const inputValue = parseFloat(currentInput);
+            const result = inputValue / 100;
+            calculation = `${currentInput}%`;
+            currentInput = formatToScientific(result);
+            updateDisplay();
+            resetInput = true;
+        }
+        
+        // Calculate result
+        function calculate() {
+            if (!operation) return;
+            
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            
+            switch (operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        currentInput = 'Error';
+                        calculation = '';
+                        updateDisplay();
+                        return;
+                    }
+                    result = prev / current;
+                    break;
+                case '^':
+                    result = Math.pow(prev, current);
+                    break;
+                default:
+                    return;
+            }
+            
+            calculation = '';
+            currentInput = formatToScientific(result);
+            operation = null;
+            previousInput = '';
+            resetInput = true;
+            updateDisplay();
+        }
+        
+        // Clear entry
+        function clearEntry() {
+            currentInput = '0';
+            updateDisplay();
+        }
+        
+        // Clear all
+        function clearAll() {
+            currentInput = '0';
+            calculation = '';
+            previousInput = '';
+            operation = null;
+            updateDisplay();
+        }
+        
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
