@@ -1,8 +1,8 @@
 const CACHE_NAME = 'scientific-calculator-v20250919-2316';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  './',
+  './index.html',
+  './manifest.json'
 ];
 
 // Install event
