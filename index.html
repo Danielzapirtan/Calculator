@@ -74,11 +74,15 @@
         button {
             border: none;
             padding: 15px 5px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             background-color: #444;
             color: white;
             transition: background-color 0.2s;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         button:hover {
@@ -87,6 +91,7 @@
         
         button:active {
             background-color: #666;
+            transform: scale(0.98);
         }
         
         .number {
@@ -99,14 +104,20 @@
         
         .function {
             background-color: #2c2c2c;
+            font-size: 0.9rem;
         }
         
         .equals {
             background-color: #1976d2;
+            grid-row: span 2;
         }
         
         .clear {
             background-color: #d32f2f;
+        }
+        
+        .zero {
+            grid-column: span 2;
         }
         
         .title {
@@ -129,8 +140,13 @@
         
         @media (max-width: 480px) {
             button {
-                padding: 12px 5px;
+                padding: 12px 3px;
                 font-size: 1rem;
+                min-height: 45px;
+            }
+            
+            .function {
+                font-size: 0.8rem;
             }
             
             .result {
@@ -149,49 +165,58 @@
         </div>
         
         <div class="keypad">
-            <!-- Row 1 -->
-            <button class="function" onclick="handleFunction('(')">(</button>
-            <button class="function" onclick="handleFunction(')')">)</button>
-            <button class="function" onclick="handleFunction('exp')">EXP</button>
-            <button class="clear" onclick="clearAll()">AC</button>
-            <button class="clear" onclick="clearEntry()">C</button>
+            <!-- Row 1: Scientific Functions -->
+            <button class="function" onclick="handleFunction('sin')">sin</button>
+            <button class="function" onclick="handleFunction('cos')">cos</button>
+            <button class="function" onclick="handleFunction('tan')">tan</button>
+            <button class="function" onclick="handleFunction('log')">log</button>
+            <button class="function" onclick="handleFunction('ln')">ln</button>
             
-            <!-- Row 2 -->
+            <!-- Row 2: Power Functions -->
+            <button class="function" onclick="handleFunction('sqrt')">√</button>
+            <button class="function" onclick="handleFunction('x^2')">x²</button>
+            <button class="function" onclick="handleFunction('x^y')">x^y</button>
             <button class="function" onclick="handleFunction('10^x')">10^x</button>
             <button class="function" onclick="handleFunction('e^x')">e^x</button>
-            <button class="function" onclick="handleFunction('x^y')">x^y</button>
+            
+            <!-- Row 3: Constants and Clear -->
+            <button class="function" onclick="handleConstant('pi')">π</button>
+            <button class="function" onclick="handleConstant('e')">e</button>
+            <button class="function" onclick="handleFunction('(')">(</button>
+            <button class="function" onclick="handleFunction(')')">)</button>
+            <button class="clear" onclick="clearAll()">AC</button>
+            
+            <!-- Row 4: Numbers and Operators -->
+            <button class="clear" onclick="clearEntry()">C</button>
             <button class="operator" onclick="handleOperator('/')">/</button>
-            <button class="operator" onclick="handleOperator('*')">*</button>
-            
-            <!-- Row 3 -->
-            <button class="function" onclick="handleFunction('log10')">log10</button>
-            <button class="function" onclick="handleFunction('ln')">ln</button>
-            <button class="operator" onclick="handlePercentage()">%</button>
-            <button class="number" onclick="appendNumber(7)">7</button>
-            <button class="number" onclick="appendNumber(8)">8</button>
-            
-            <!-- Row 4 -->
-            <button class="number" onclick="appendNumber(9)">9</button>
-            <button class="operator" onclick="handleOperator('-')">-</button>
-            <button class="number" onclick="appendNumber(4)">4</button>
-            <button class="number" onclick="appendNumber(5)">5</button>
-            <button class="number" onclick="appendNumber(6)">6</button>
+            <button class="number" onclick="appendNumber('7')">7</button>
+            <button class="number" onclick="appendNumber('8')">8</button>
+            <button class="number" onclick="appendNumber('9')">9</button>
             
             <!-- Row 5 -->
-            <button class="operator" onclick="handleOperator('+')">+</button>
-            <button class="number" onclick="appendNumber(1)">1</button>
-            <button class="number" onclick="appendNumber(2)">2</button>
-            <button class="number" onclick="appendNumber(3)">3</button>
-            <button class="equals" onclick="calculate()" rowspan="2">=</button>
+            <button class="operator" onclick="handlePercentage()">%</button>
+            <button class="operator" onclick="handleOperator('*')">×</button>
+            <button class="number" onclick="appendNumber('4')">4</button>
+            <button class="number" onclick="appendNumber('5')">5</button>
+            <button class="number" onclick="appendNumber('6')">6</button>
             
             <!-- Row 6 -->
-            <button class="number" onclick="appendNumber(0)">0</button>
+            <button class="function" onclick="toggleSign()">±</button>
+            <button class="operator" onclick="handleOperator('-')">-</button>
+            <button class="number" onclick="appendNumber('1')">1</button>
+            <button class="number" onclick="appendNumber('2')">2</button>
+            <button class="number" onclick="appendNumber('3')">3</button>
+            
+            <!-- Row 7 -->
+            <button class="number zero" onclick="appendNumber('0')">0</button>
             <button class="number" onclick="appendDecimal()">.</button>
+            <button class="operator" onclick="handleOperator('+')">+</button>
+            <button class="equals" onclick="calculate()">=</button>
         </div>
     </div>
     
     <div class="instructions">
-        <p>This is a scientific calculator PWA. You can install it on your device for offline use.</p>
+        <p>Enhanced scientific calculator with trigonometric functions, logarithms, and constants. Install as PWA for offline use.</p>
     </div>
 
     <script>
@@ -201,56 +226,62 @@
         let previousInput = '';
         let operation = null;
         let resetInput = false;
+        let lastResult = null;
+        let parenthesesCount = 0;
+        
+        // Constants
+        const CONSTANTS = {
+            pi: Math.PI,
+            e: Math.E
+        };
         
         // DOM elements
         const resultElement = document.getElementById('result');
         const calculationElement = document.getElementById('calculation');
         
-        // Format number to scientific notation with 4 significant digits
-        function formatToScientific(num) {
-            if (num === 0) return '0';
-            if (!isFinite(num)) return num.toString();
-            
-            // Convert to scientific notation
-            const exp = Math.floor(Math.log10(Math.abs(num)));
-            const mantissa = num / Math.pow(10, exp);
-            
-            // Format mantissa to 4 significant digits
-            let formattedMantissa = mantissa.toFixed(3);
-            
-            // Adjust for rounding
-            if (formattedMantissa >= 10) {
-                formattedMantissa = (formattedMantissa / 10).toFixed(3);
-                exp++;
+        // Format number for display
+        function formatNumber(num) {
+            if (!isFinite(num)) {
+                return num.toString();
             }
             
-            // Format exponent to 2 digits
-            const formattedExp = exp >= 0 ? 
-                `+${exp.toString().padStart(2, '0')}` : 
-                `-${Math.abs(exp).toString().padStart(2, '0')}`;
+            if (num === 0) return '0';
             
-            return `${formattedMantissa}e${formattedExp}`;
+            const absNum = Math.abs(num);
+            
+            // For very large or very small numbers, use scientific notation
+            if (absNum >= 1e10 || (absNum < 1e-6 && absNum !== 0)) {
+                return num.toExponential(6);
+            }
+            
+            // For normal numbers, limit decimal places
+            if (absNum >= 1) {
+                return parseFloat(num.toPrecision(10)).toString();
+            } else {
+                return parseFloat(num.toPrecision(6)).toString();
+            }
         }
         
         // Update display
         function updateDisplay() {
             resultElement.textContent = currentInput;
             calculationElement.textContent = calculation;
+            
+            // Scroll to show the end of long numbers
+            resultElement.scrollLeft = resultElement.scrollWidth;
+            calculationElement.scrollLeft = calculationElement.scrollWidth;
         }
         
         // Append number
         function appendNumber(number) {
-            if (resetInput) {
-                currentInput = '';
+            if (resetInput || currentInput === '0') {
+                currentInput = number;
                 resetInput = false;
-            }
-            
-            if (currentInput === '0') {
-                currentInput = number.toString();
             } else {
-                currentInput += number.toString();
+                if (currentInput.length < 15) { // Prevent overly long inputs
+                    currentInput += number;
+                }
             }
-            
             updateDisplay();
         }
         
@@ -263,146 +294,209 @@
             
             if (!currentInput.includes('.')) {
                 currentInput += '.';
+                updateDisplay();
             }
+        }
+        
+        // Toggle sign
+        function toggleSign() {
+            if (currentInput === '0') return;
             
+            if (currentInput.charAt(0) === '-') {
+                currentInput = currentInput.slice(1);
+            } else {
+                currentInput = '-' + currentInput;
+            }
+            updateDisplay();
+        }
+        
+        // Handle constants
+        function handleConstant(constant) {
+            const value = CONSTANTS[constant];
+            currentInput = formatNumber(value);
+            calculation = constant;
+            resetInput = true;
             updateDisplay();
         }
         
         // Handle operators
         function handleOperator(op) {
-            if (operation !== null) {
+            if (operation !== null && !resetInput) {
                 calculate();
             }
             
             previousInput = currentInput;
             operation = op;
-            calculation = `${previousInput} ${op} `;
+            const opSymbol = op === '*' ? '×' : op;
+            calculation = `${previousInput} ${opSymbol}`;
             resetInput = true;
             updateDisplay();
         }
         
         // Handle functions
         function handleFunction(func) {
-            let result;
             const inputValue = parseFloat(currentInput);
+            let result;
             
-            switch (func) {
-                case 'e^x':
-                    result = Math.exp(inputValue);
-                    calculation = `e^(${currentInput})`;
-                    break;
-                case '10^x':
-                    result = Math.pow(10, inputValue);
-                    calculation = `10^(${currentInput})`;
-                    break;
-                case 'x^y':
-                    if (operation !== null) {
-                        calculate();
-                    }
-                    previousInput = currentInput;
-                    operation = '^';
-                    calculation = `${previousInput} ^ `;
-                    resetInput = true;
-                    updateDisplay();
-                    return;
-                case 'log10':
-                    if (inputValue <= 0) {
-                        currentInput = 'Error';
-                        calculation = 'log10(x), x>0';
+            try {
+                switch (func) {
+                    case 'sin':
+                        result = Math.sin(inputValue);
+                        calculation = `sin(${currentInput})`;
+                        break;
+                    case 'cos':
+                        result = Math.cos(inputValue);
+                        calculation = `cos(${currentInput})`;
+                        break;
+                    case 'tan':
+                        result = Math.tan(inputValue);
+                        calculation = `tan(${currentInput})`;
+                        break;
+                    case 'log':
+                        if (inputValue <= 0) throw new Error('Invalid input for logarithm');
+                        result = Math.log10(inputValue);
+                        calculation = `log(${currentInput})`;
+                        break;
+                    case 'ln':
+                        if (inputValue <= 0) throw new Error('Invalid input for natural log');
+                        result = Math.log(inputValue);
+                        calculation = `ln(${currentInput})`;
+                        break;
+                    case 'sqrt':
+                        if (inputValue < 0) throw new Error('Invalid input for square root');
+                        result = Math.sqrt(inputValue);
+                        calculation = `√(${currentInput})`;
+                        break;
+                    case 'x^2':
+                        result = Math.pow(inputValue, 2);
+                        calculation = `(${currentInput})²`;
+                        break;
+                    case '10^x':
+                        result = Math.pow(10, inputValue);
+                        calculation = `10^(${currentInput})`;
+                        break;
+                    case 'e^x':
+                        result = Math.exp(inputValue);
+                        calculation = `e^(${currentInput})`;
+                        break;
+                    case 'x^y':
+                        if (operation !== null && !resetInput) {
+                            calculate();
+                        }
+                        previousInput = currentInput;
+                        operation = '^';
+                        calculation = `${previousInput} ^`;
+                        resetInput = true;
                         updateDisplay();
                         return;
-                    }
-                    result = Math.log10(inputValue);
-                    calculation = `log10(${currentInput})`;
-                    break;
-                case 'ln':
-                    if (inputValue <= 0) {
-                        currentInput = 'Error';
-                        calculation = 'ln(x), x>0';
+                    case '(':
+                        if (currentInput === '0' || resetInput) {
+                            currentInput = '(';
+                            resetInput = false;
+                        } else {
+                            currentInput += '(';
+                        }
+                        parenthesesCount++;
                         updateDisplay();
                         return;
-                    }
-                    result = Math.log(inputValue);
-                    calculation = `ln(${currentInput})`;
-                    break;
-                case 'exp':
-                    calculation += 'e';
-                    if (currentInput === '0') {
-                        currentInput = 'e';
-                    } else {
-                        currentInput += 'e';
-                    }
-                    updateDisplay();
-                    return;
-                case '(':
-                case ')':
-                    calculation += func;
-                    if (currentInput === '0') {
-                        currentInput = func;
-                    } else {
-                        currentInput += func;
-                    }
-                    updateDisplay();
-                    return;
-                default:
-                    return;
+                    case ')':
+                        if (parenthesesCount > 0) {
+                            currentInput += ')';
+                            parenthesesCount--;
+                            updateDisplay();
+                        }
+                        return;
+                    default:
+                        return;
+                }
+                
+                if (!isFinite(result)) {
+                    throw new Error('Result is not finite');
+                }
+                
+                currentInput = formatNumber(result);
+                resetInput = true;
+                updateDisplay();
+                
+            } catch (error) {
+                currentInput = 'Error';
+                calculation = 'Math Error';
+                resetInput = true;
+                updateDisplay();
             }
-            
-            currentInput = formatToScientific(result);
-            updateDisplay();
-            resetInput = true;
         }
         
         // Handle percentage
         function handlePercentage() {
-            const inputValue = parseFloat(currentInput);
-            const result = inputValue / 100;
-            calculation = `${currentInput}%`;
-            currentInput = formatToScientific(result);
-            updateDisplay();
-            resetInput = true;
+            try {
+                const inputValue = parseFloat(currentInput);
+                const result = inputValue / 100;
+                calculation = `${currentInput}%`;
+                currentInput = formatNumber(result);
+                resetInput = true;
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                calculation = 'Math Error';
+                resetInput = true;
+                updateDisplay();
+            }
         }
         
         // Calculate result
         function calculate() {
-            if (!operation) return;
+            if (!operation || resetInput) return;
             
-            let result;
-            const prev = parseFloat(previousInput);
-            const current = parseFloat(currentInput);
-            
-            switch (operation) {
-                case '+':
-                    result = prev + current;
-                    break;
-                case '-':
-                    result = prev - current;
-                    break;
-                case '*':
-                    result = prev * current;
-                    break;
-                case '/':
-                    if (current === 0) {
-                        currentInput = 'Error';
-                        calculation = '';
-                        updateDisplay();
+            try {
+                const prev = parseFloat(previousInput);
+                const current = parseFloat(currentInput);
+                let result;
+                
+                if (!isFinite(prev) || !isFinite(current)) {
+                    throw new Error('Invalid numbers');
+                }
+                
+                switch (operation) {
+                    case '+':
+                        result = prev + current;
+                        break;
+                    case '-':
+                        result = prev - current;
+                        break;
+                    case '*':
+                        result = prev * current;
+                        break;
+                    case '/':
+                        if (current === 0) throw new Error('Division by zero');
+                        result = prev / current;
+                        break;
+                    case '^':
+                        result = Math.pow(prev, current);
+                        break;
+                    default:
                         return;
-                    }
-                    result = prev / current;
-                    break;
-                case '^':
-                    result = Math.pow(prev, current);
-                    break;
-                default:
-                    return;
+                }
+                
+                if (!isFinite(result)) {
+                    throw new Error('Result is not finite');
+                }
+                
+                lastResult = result;
+                currentInput = formatNumber(result);
+                calculation = '';
+                operation = null;
+                previousInput = '';
+                resetInput = true;
+                updateDisplay();
+                
+            } catch (error) {
+                currentInput = 'Error';
+                calculation = error.message;
+                operation = null;
+                previousInput = '';
+                resetInput = true;
+                updateDisplay();
             }
-            
-            calculation = '';
-            currentInput = formatToScientific(result);
-            operation = null;
-            previousInput = '';
-            resetInput = true;
-            updateDisplay();
         }
         
         // Clear entry
@@ -417,8 +511,63 @@
             calculation = '';
             previousInput = '';
             operation = null;
+            resetInput = false;
+            parenthesesCount = 0;
             updateDisplay();
         }
+        
+        // Keyboard support
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            // Prevent default for calculator keys
+            if ('0123456789+-*/.=()'.includes(key) || key === 'Enter' || key === 'Backspace' || key === 'Escape') {
+                event.preventDefault();
+            }
+            
+            // Handle numeric keys
+            if ('0123456789'.includes(key)) {
+                appendNumber(key);
+            }
+            
+            // Handle operators
+            switch (key) {
+                case '+':
+                    handleOperator('+');
+                    break;
+                case '-':
+                    handleOperator('-');
+                    break;
+                case '*':
+                    handleOperator('*');
+                    break;
+                case '/':
+                    handleOperator('/');
+                    break;
+                case '.':
+                    appendDecimal();
+                    break;
+                case '=':
+                case 'Enter':
+                    calculate();
+                    break;
+                case 'Backspace':
+                    clearEntry();
+                    break;
+                case 'Escape':
+                    clearAll();
+                    break;
+                case '(':
+                    handleFunction('(');
+                    break;
+                case ')':
+                    handleFunction(')');
+                    break;
+                case '%':
+                    handlePercentage();
+                    break;
+            }
+        });
         
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
@@ -432,6 +581,9 @@
                     });
             });
         }
+        
+        // Initialize display
+        updateDisplay();
     </script>
 </body>
 </html>
