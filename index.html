@@ -3,587 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scientific Calculator PWA</title>
-    <meta name="theme-color" content="#333333">
-    <meta name="description" content="A scientific calculator progressive web application">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icons/icon-192.png">
-    <link rel="apple-touch-icon" href="icons/icon-512.png">
+    <title>Pascaline Calculator Simulator</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-        }
-        
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            font-family: 'Georgia', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
         }
-        
-        .calculator {
-            width: 100%;
-            max-width: 400px;
-            background-color: #222;
+
+        .container {
+            background: linear-gradient(145deg, #8b7355, #6d5a45);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 3px solid #4a3f35;
+        }
+
+        h1 {
+            text-align: center;
+            color: #f4e4c1;
+            margin-top: 0;
+            font-size: 28px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .pascaline {
+            background: linear-gradient(to bottom, #c9b896 0%, #a89968 50%, #8b7d5c 100%);
+            padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            overflow: hidden;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3), 0 5px 20px rgba(0,0,0,0.4);
+            border: 2px solid #6d5d42;
         }
-        
-        .display {
-            background-color: #000;
-            color: #fff;
+
+        .display-section {
+            background: #2c2416;
             padding: 20px;
-            text-align: right;
-            min-height: 120px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.5);
+        }
+
+        .display {
             display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
         }
-        
-        .calculation {
-            color: #aaa;
-            font-size: 1.2rem;
-            min-height: 28px;
-            overflow-x: auto;
-            white-space: nowrap;
-            margin-bottom: 10px;
-            text-align: right;
-        }
-        
-        .result {
-            font-size: 2.2rem;
-            font-weight: 300;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-        
-        .keypad {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1px;
-            background-color: #333;
-        }
-        
-        button {
-            border: none;
-            padding: 15px 5px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            background-color: #444;
-            color: white;
-            transition: background-color 0.2s;
-            min-height: 50px;
+
+        .digit-window {
+            width: 50px;
+            height: 70px;
+            background: linear-gradient(to bottom, #f9f6f0 0%, #e8e3d8 100%);
+            border: 3px solid #3d3020;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: #1a1a1a;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+            font-family: 'Courier New', monospace;
         }
-        
-        button:hover {
-            background-color: #555;
-        }
-        
-        button:active {
-            background-color: #666;
-            transform: scale(0.98);
-        }
-        
-        .number {
-            background-color: #333;
-        }
-        
-        .operator {
-            background-color: #505050;
-        }
-        
-        .function {
-            background-color: #2c2c2c;
-            font-size: 0.9rem;
-        }
-        
-        .equals {
-            background-color: #1976d2;
-            grid-row: span 2;
-        }
-        
-        .clear {
-            background-color: #d32f2f;
-        }
-        
-        .zero {
-            grid-column: span 2;
-        }
-        
-        .title {
-            color: white;
+
+        .dials-section {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
             margin-bottom: 20px;
-            text-align: center;
-            font-size: 2rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
-        .instructions {
-            color: white;
+
+        .dial-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dial {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #d4c5a9, #8b7355);
+            border: 4px solid #4a3f35;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+
+        .dial:active {
+            transform: scale(0.95);
+        }
+
+        .dial-notch {
+            position: absolute;
+            width: 4px;
+            height: 16px;
+            background: #2c2416;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .dial-center {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #3d3020;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
             margin-top: 20px;
-            text-align: center;
-            max-width: 400px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 15px;
-            border-radius: 10px;
         }
-        
-        @media (max-width: 480px) {
-            button {
-                padding: 12px 3px;
-                font-size: 1rem;
-                min-height: 45px;
-            }
-            
-            .function {
-                font-size: 0.8rem;
-            }
-            
-            .result {
-                font-size: 1.8rem;
-            }
+
+        button {
+            background: linear-gradient(to bottom, #c9b896, #a89968);
+            border: 2px solid #6d5d42;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #2c2416;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: linear-gradient(to bottom, #d4c5a9, #b8a878);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .label {
+            color: #f4e4c1;
+            font-size: 14px;
+            margin-top: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .instruction {
+            text-align: center;
+            color: #f4e4c1;
+            margin-top: 20px;
+            font-size: 14px;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <h1 class="title">Scientific Calculator PWA</h1>
-    
-    <div class="calculator">
-        <div class="display">
-            <div class="calculation" id="calculation"></div>
-            <div class="result" id="result">0</div>
+    <div class="container">
+        <h1>⚙ Pascaline Calculator ⚙</h1>
+        <div class="pascaline">
+            <div class="display-section">
+                <div class="display" id="display"></div>
+            </div>
+            
+            <div class="dials-section" id="dials"></div>
+            
+            <div class="buttons">
+                <button onclick="reset()">Reset</button>
+                <button onclick="add()">Add to Total</button>
+            </div>
+            
+            <div class="instruction">
+                Click dials to set a number, then click "Add to Total"
+            </div>
         </div>
-        
-        <div class="keypad">
-            <!-- Row 1: Scientific Functions -->
-            <button class="function" onclick="handleFunction('sin')">sin</button>
-            <button class="function" onclick="handleFunction('cos')">cos</button>
-            <button class="function" onclick="handleFunction('tan')">tan</button>
-            <button class="function" onclick="handleFunction('log')">log</button>
-            <button class="function" onclick="handleFunction('ln')">ln</button>
-            
-            <!-- Row 2: Power Functions -->
-            <button class="function" onclick="handleFunction('sqrt')">√</button>
-            <button class="function" onclick="handleFunction('x^2')">x²</button>
-            <button class="function" onclick="handleFunction('x^y')">x^y</button>
-            <button class="function" onclick="handleFunction('10^x')">10^x</button>
-            <button class="function" onclick="handleFunction('e^x')">e^x</button>
-            
-            <!-- Row 3: Constants and Clear -->
-            <button class="function" onclick="handleConstant('pi')">π</button>
-            <button class="function" onclick="handleConstant('e')">e</button>
-            <button class="function" onclick="handleFunction('(')">(</button>
-            <button class="function" onclick="handleFunction(')')">)</button>
-            <button class="clear" onclick="clearAll()">AC</button>
-            
-            <!-- Row 4: Numbers and Operators -->
-            <button class="clear" onclick="clearEntry()">C</button>
-            <button class="operator" onclick="handleOperator('/')">/</button>
-            <button class="number" onclick="appendNumber('7')">7</button>
-            <button class="number" onclick="appendNumber('8')">8</button>
-            <button class="number" onclick="appendNumber('9')">9</button>
-            
-            <!-- Row 5 -->
-            <button class="operator" onclick="handlePercentage()">%</button>
-            <button class="operator" onclick="handleOperator('*')">×</button>
-            <button class="number" onclick="appendNumber('4')">4</button>
-            <button class="number" onclick="appendNumber('5')">5</button>
-            <button class="number" onclick="appendNumber('6')">6</button>
-            
-            <!-- Row 6 -->
-            <button class="function" onclick="toggleSign()">±</button>
-            <button class="operator" onclick="handleOperator('-')">-</button>
-            <button class="number" onclick="appendNumber('1')">1</button>
-            <button class="number" onclick="appendNumber('2')">2</button>
-            <button class="number" onclick="appendNumber('3')">3</button>
-            
-            <!-- Row 7 -->
-            <button class="number zero" onclick="appendNumber('0')">0</button>
-            <button class="number" onclick="appendDecimal()">.</button>
-            <button class="operator" onclick="handleOperator('+')">+</button>
-            <button class="equals" onclick="calculate()">=</button>
-        </div>
-    </div>
-    
-    <div class="instructions">
-        <p>Enhanced scientific calculator with trigonometric functions, logarithms, and constants. Install as PWA for offline use.</p>
     </div>
 
     <script>
-        // State management
-        let currentInput = '0';
-        let calculation = '';
-        let previousInput = '';
-        let operation = null;
-        let resetInput = false;
-        let lastResult = null;
-        let parenthesesCount = 0;
-        
-        // Constants
-        const CONSTANTS = {
-            pi: Math.PI,
-            e: Math.E
-        };
-        
-        // DOM elements
-        const resultElement = document.getElementById('result');
-        const calculationElement = document.getElementById('calculation');
-        
-        // Format number for display
-        function formatNumber(num) {
-            if (!isFinite(num)) {
-                return num.toString();
-            }
+        const DIGITS = 6;
+        let displayValues = new Array(DIGITS).fill(0);
+        let dialValues = new Array(DIGITS).fill(0);
+
+        function init() {
+            const displayEl = document.getElementById('display');
+            const dialsEl = document.getElementById('dials');
             
-            if (num === 0) return '0';
+            displayEl.innerHTML = '';
+            dialsEl.innerHTML = '';
             
-            const absNum = Math.abs(num);
-            
-            // For very large or very small numbers, use scientific notation
-            if (absNum >= 1e10 || (absNum < 1e-6 && absNum !== 0)) {
-                return num.toExponential(6);
-            }
-            
-            // For normal numbers, limit decimal places
-            if (absNum >= 1) {
-                return parseFloat(num.toPrecision(10)).toString();
-            } else {
-                return parseFloat(num.toPrecision(6)).toString();
-            }
-        }
-        
-        // Update display
-        function updateDisplay() {
-            resultElement.textContent = currentInput;
-            calculationElement.textContent = calculation;
-            
-            // Scroll to show the end of long numbers
-            resultElement.scrollLeft = resultElement.scrollWidth;
-            calculationElement.scrollLeft = calculationElement.scrollWidth;
-        }
-        
-        // Append number
-        function appendNumber(number) {
-            if (resetInput || currentInput === '0') {
-                currentInput = number;
-                resetInput = false;
-            } else {
-                if (currentInput.length < 15) { // Prevent overly long inputs
-                    currentInput += number;
-                }
-            }
-            updateDisplay();
-        }
-        
-        // Append decimal point
-        function appendDecimal() {
-            if (resetInput) {
-                currentInput = '0';
-                resetInput = false;
-            }
-            
-            if (!currentInput.includes('.')) {
-                currentInput += '.';
-                updateDisplay();
-            }
-        }
-        
-        // Toggle sign
-        function toggleSign() {
-            if (currentInput === '0') return;
-            
-            if (currentInput.charAt(0) === '-') {
-                currentInput = currentInput.slice(1);
-            } else {
-                currentInput = '-' + currentInput;
-            }
-            updateDisplay();
-        }
-        
-        // Handle constants
-        function handleConstant(constant) {
-            const value = CONSTANTS[constant];
-            currentInput = formatNumber(value);
-            calculation = constant;
-            resetInput = true;
-            updateDisplay();
-        }
-        
-        // Handle operators
-        function handleOperator(op) {
-            if (operation !== null && !resetInput) {
-                calculate();
-            }
-            
-            previousInput = currentInput;
-            operation = op;
-            const opSymbol = op === '*' ? '×' : op;
-            calculation = `${previousInput} ${opSymbol}`;
-            resetInput = true;
-            updateDisplay();
-        }
-        
-        // Handle functions
-        function handleFunction(func) {
-            const inputValue = parseFloat(currentInput);
-            let result;
-            
-            try {
-                switch (func) {
-                    case 'sin':
-                        result = Math.sin(inputValue);
-                        calculation = `sin(${currentInput})`;
-                        break;
-                    case 'cos':
-                        result = Math.cos(inputValue);
-                        calculation = `cos(${currentInput})`;
-                        break;
-                    case 'tan':
-                        result = Math.tan(inputValue);
-                        calculation = `tan(${currentInput})`;
-                        break;
-                    case 'log':
-                        if (inputValue <= 0) throw new Error('Invalid input for logarithm');
-                        result = Math.log10(inputValue);
-                        calculation = `log(${currentInput})`;
-                        break;
-                    case 'ln':
-                        if (inputValue <= 0) throw new Error('Invalid input for natural log');
-                        result = Math.log(inputValue);
-                        calculation = `ln(${currentInput})`;
-                        break;
-                    case 'sqrt':
-                        if (inputValue < 0) throw new Error('Invalid input for square root');
-                        result = Math.sqrt(inputValue);
-                        calculation = `√(${currentInput})`;
-                        break;
-                    case 'x^2':
-                        result = Math.pow(inputValue, 2);
-                        calculation = `(${currentInput})²`;
-                        break;
-                    case '10^x':
-                        result = Math.pow(10, inputValue);
-                        calculation = `10^(${currentInput})`;
-                        break;
-                    case 'e^x':
-                        result = Math.exp(inputValue);
-                        calculation = `e^(${currentInput})`;
-                        break;
-                    case 'x^y':
-                        if (operation !== null && !resetInput) {
-                            calculate();
-                        }
-                        previousInput = currentInput;
-                        operation = '^';
-                        calculation = `${previousInput} ^`;
-                        resetInput = true;
-                        updateDisplay();
-                        return;
-                    case '(':
-                        if (currentInput === '0' || resetInput) {
-                            currentInput = '(';
-                            resetInput = false;
-                        } else {
-                            currentInput += '(';
-                        }
-                        parenthesesCount++;
-                        updateDisplay();
-                        return;
-                    case ')':
-                        if (parenthesesCount > 0) {
-                            currentInput += ')';
-                            parenthesesCount--;
-                            updateDisplay();
-                        }
-                        return;
-                    default:
-                        return;
-                }
+            for (let i = 0; i < DIGITS; i++) {
+                const window = document.createElement('div');
+                window.className = 'digit-window';
+                window.id = `display-${i}`;
+                window.textContent = '0';
+                displayEl.appendChild(window);
                 
-                if (!isFinite(result)) {
-                    throw new Error('Result is not finite');
-                }
+                const dialContainer = document.createElement('div');
+                dialContainer.className = 'dial-container';
                 
-                currentInput = formatNumber(result);
-                resetInput = true;
-                updateDisplay();
+                const dial = document.createElement('div');
+                dial.className = 'dial';
+                dial.id = `dial-${i}`;
+                dial.onclick = () => incrementDial(i);
                 
-            } catch (error) {
-                currentInput = 'Error';
-                calculation = 'Math Error';
-                resetInput = true;
-                updateDisplay();
+                const notch = document.createElement('div');
+                notch.className = 'dial-notch';
+                
+                const center = document.createElement('div');
+                center.className = 'dial-center';
+                
+                dial.appendChild(notch);
+                dial.appendChild(center);
+                
+                const label = document.createElement('div');
+                label.className = 'label';
+                label.textContent = '0';
+                label.id = `dial-label-${i}`;
+                
+                dialContainer.appendChild(dial);
+                dialContainer.appendChild(label);
+                dialsEl.appendChild(dialContainer);
             }
         }
-        
-        // Handle percentage
-        function handlePercentage() {
-            try {
-                const inputValue = parseFloat(currentInput);
-                const result = inputValue / 100;
-                calculation = `${currentInput}%`;
-                currentInput = formatNumber(result);
-                resetInput = true;
-                updateDisplay();
-            } catch (error) {
-                currentInput = 'Error';
-                calculation = 'Math Error';
-                resetInput = true;
-                updateDisplay();
-            }
-        }
-        
-        // Calculate result
-        function calculate() {
-            if (!operation || resetInput) return;
+
+        function incrementDial(position) {
+            dialValues[position] = (dialValues[position] + 1) % 10;
             
-            try {
-                const prev = parseFloat(previousInput);
-                const current = parseFloat(currentInput);
-                let result;
-                
-                if (!isFinite(prev) || !isFinite(current)) {
-                    throw new Error('Invalid numbers');
-                }
-                
-                switch (operation) {
-                    case '+':
-                        result = prev + current;
-                        break;
-                    case '-':
-                        result = prev - current;
-                        break;
-                    case '*':
-                        result = prev * current;
-                        break;
-                    case '/':
-                        if (current === 0) throw new Error('Division by zero');
-                        result = prev / current;
-                        break;
-                    case '^':
-                        result = Math.pow(prev, current);
-                        break;
-                    default:
-                        return;
-                }
-                
-                if (!isFinite(result)) {
-                    throw new Error('Result is not finite');
-                }
-                
-                lastResult = result;
-                currentInput = formatNumber(result);
-                calculation = '';
-                operation = null;
-                previousInput = '';
-                resetInput = true;
-                updateDisplay();
-                
-            } catch (error) {
-                currentInput = 'Error';
-                calculation = error.message;
-                operation = null;
-                previousInput = '';
-                resetInput = true;
-                updateDisplay();
-            }
-        }
-        
-        // Clear entry
-        function clearEntry() {
-            currentInput = '0';
-            updateDisplay();
-        }
-        
-        // Clear all
-        function clearAll() {
-            currentInput = '0';
-            calculation = '';
-            previousInput = '';
-            operation = null;
-            resetInput = false;
-            parenthesesCount = 0;
-            updateDisplay();
-        }
-        
-        // Keyboard support
-        document.addEventListener('keydown', function(event) {
-            const key = event.key;
+            const dial = document.getElementById(`dial-${position}`);
+            const label = document.getElementById(`dial-label-${position}`);
+            const notch = dial.querySelector('.dial-notch');
             
-            // Prevent default for calculator keys
-            if ('0123456789+-*/.=()'.includes(key) || key === 'Enter' || key === 'Backspace' || key === 'Escape') {
-                event.preventDefault();
+            const rotation = dialValues[position] * 36;
+            notch.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+            notch.style.transformOrigin = 'center 28px';
+            
+            label.textContent = dialValues[position];
+        }
+
+        function add() {
+            let carry = 0;
+            
+            for (let i = DIGITS - 1; i >= 0; i--) {
+                let sum = displayValues[i] + dialValues[i] + carry;
+                carry = Math.floor(sum / 10);
+                displayValues[i] = sum % 10;
+                
+                updateDisplay(i, displayValues[i]);
             }
             
-            // Handle numeric keys
-            if ('0123456789'.includes(key)) {
-                appendNumber(key);
-            }
-            
-            // Handle operators
-            switch (key) {
-                case '+':
-                    handleOperator('+');
-                    break;
-                case '-':
-                    handleOperator('-');
-                    break;
-                case '*':
-                    handleOperator('*');
-                    break;
-                case '/':
-                    handleOperator('/');
-                    break;
-                case '.':
-                    appendDecimal();
-                    break;
-                case '=':
-                case 'Enter':
-                    calculate();
-                    break;
-                case 'Backspace':
-                    clearEntry();
-                    break;
-                case 'Escape':
-                    clearAll();
-                    break;
-                case '(':
-                    handleFunction('(');
-                    break;
-                case ')':
-                    handleFunction(')');
-                    break;
-                case '%':
-                    handlePercentage();
-                    break;
-            }
-        });
-        
-        // Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js')
-                    .then(function(registration) {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(function(error) {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
-            });
+            resetDials();
         }
-        
-        // Initialize display
-        updateDisplay();
+
+        function updateDisplay(position, value) {
+            const displayDigit = document.getElementById(`display-${position}`);
+            displayDigit.textContent = value;
+            
+            displayDigit.style.transform = 'scale(1.2)';
+            displayDigit.style.background = 'linear-gradient(to bottom, #fff9e6 0%, #f4e4c1 100%)';
+            
+            setTimeout(() => {
+                displayDigit.style.transform = 'scale(1)';
+                displayDigit.style.background = 'linear-gradient(to bottom, #f9f6f0 0%, #e8e3d8 100%)';
+            }, 200);
+        }
+
+        function resetDials() {
+            for (let i = 0; i < DIGITS; i++) {
+                dialValues[i] = 0;
+                const dial = document.getElementById(`dial-${i}`);
+                const label = document.getElementById(`dial-label-${i}`);
+                const notch = dial.querySelector('.dial-notch');
+                
+                notch.style.transform = 'translateX(-50%) rotate(0deg)';
+                label.textContent = '0';
+            }
+        }
+
+        function reset() {
+            displayValues = new Array(DIGITS).fill(0);
+            dialValues = new Array(DIGITS).fill(0);
+            
+            for (let i = 0; i < DIGITS; i++) {
+                document.getElementById(`display-${i}`).textContent = '0';
+                const notch = document.getElementById(`dial-${i}`).querySelector('.dial-notch');
+                notch.style.transform = 'translateX(-50%) rotate(0deg)';
+                document.getElementById(`dial-label-${i}`).textContent = '0';
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>
