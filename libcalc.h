@@ -1,3 +1,6 @@
+#ifndef LIBCALC
+#define LIBCALC
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,3 +14,4 @@ extern NUMBER dvd(NUMBER x, NUMBER y);
 
 extern NUMBER sqrt(NUMBER);
 
+#endif
